@@ -38,9 +38,15 @@ export const Route = createRootRoute({
         content:
           "Offline správce záruk, smluv, pojištění a osobních termínů. Funguje lokálně v prohlížeči.",
       },
-      { property: "og:title", content: "Termíny — osobní správce" },
-      { property: "og:description", content: "Lokální správce expirací a deadlines." },
+      { property: "og:title", content: "Termíny — osobní správce expirací" },
+      { property: "og:description", content: "Nikdy už nezapomeň důležitý termín. Platnost záruky, termíny plateb, očkování - to vše na jednom místě." },
       { property: "og:type", content: "website" },
+      { name: "twitter:title", content: "Termíny — osobní správce expirací" },
+      { name: "description", content: "Nikdy už nezapomeň důležitý termín. Platnost záruky, termíny plateb, očkování - to vše na jednom místě." },
+      { name: "twitter:description", content: "Nikdy už nezapomeň důležitý termín. Platnost záruky, termíny plateb, očkování - to vše na jednom místě." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/50c0e0f4-d8de-43b9-bcba-c9014f54590b/id-preview-897b463d--98b02abc-bd31-4082-8975-653e3bb4972c.lovable.app-1776695029705.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/50c0e0f4-d8de-43b9-bcba-c9014f54590b/id-preview-897b463d--98b02abc-bd31-4082-8975-653e3bb4972c.lovable.app-1776695029705.png" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
