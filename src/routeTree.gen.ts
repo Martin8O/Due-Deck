@@ -9,8 +9,26 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SeznamRouteImport } from './routes/seznam'
+import { Route as NastaveniRouteImport } from './routes/nastaveni'
+import { Route as KalendarRouteImport } from './routes/kalendar'
 import { Route as IndexRouteImport } from './routes/index'
 
+const SeznamRoute = SeznamRouteImport.update({
+  id: '/seznam',
+  path: '/seznam',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NastaveniRoute = NastaveniRouteImport.update({
+  id: '/nastaveni',
+  path: '/nastaveni',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KalendarRoute = KalendarRouteImport.update({
+  id: '/kalendar',
+  path: '/kalendar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +37,61 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/kalendar': typeof KalendarRoute
+  '/nastaveni': typeof NastaveniRoute
+  '/seznam': typeof SeznamRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/kalendar': typeof KalendarRoute
+  '/nastaveni': typeof NastaveniRoute
+  '/seznam': typeof SeznamRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/kalendar': typeof KalendarRoute
+  '/nastaveni': typeof NastaveniRoute
+  '/seznam': typeof SeznamRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/kalendar' | '/nastaveni' | '/seznam'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/kalendar' | '/nastaveni' | '/seznam'
+  id: '__root__' | '/' | '/kalendar' | '/nastaveni' | '/seznam'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  KalendarRoute: typeof KalendarRoute
+  NastaveniRoute: typeof NastaveniRoute
+  SeznamRoute: typeof SeznamRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/seznam': {
+      id: '/seznam'
+      path: '/seznam'
+      fullPath: '/seznam'
+      preLoaderRoute: typeof SeznamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nastaveni': {
+      id: '/nastaveni'
+      path: '/nastaveni'
+      fullPath: '/nastaveni'
+      preLoaderRoute: typeof NastaveniRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kalendar': {
+      id: '/kalendar'
+      path: '/kalendar'
+      fullPath: '/kalendar'
+      preLoaderRoute: typeof KalendarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,6 +104,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  KalendarRoute: KalendarRoute,
+  NastaveniRoute: NastaveniRoute,
+  SeznamRoute: SeznamRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
