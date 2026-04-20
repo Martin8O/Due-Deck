@@ -1,0 +1,288 @@
+import * as React from "react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
+import { useStore } from "@/lib/store";
+import type { Item } from "@/lib/types";
+
+const schema = z.object({
+  name: z.string().min(1, "Vyplň název"),
+  categoryId: z.string().min(1, "Vyber kategorii"),
+  expiryDate: z.string().min(1, "Datum expirace je povinné"),
+  startDate: z.string().optional(),
+  price: z.string().optional(),
+  currency: z.string().optional(),
+  note: z.string().optional(),
+  link: z.string().optional(),
+  tags: z.string().optional(),
+  recurring: z.enum(["none", "yearly", "monthly"]),
+});
+
+type FormValues = z.infer<typeof schema>;
+
+export function ItemDialog({
+  open,
+  onOpenChange,
+  editing,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  editing?: Item | null;
+}) {
+  const { data, addItem, updateItem, deleteItem } = useStore();
+
+  const defaults: FormValues = React.useMemo(
+    () => ({
+      name: editing?.name ?? "",
+      categoryId: editing?.categoryId ?? data.categories[0]?.id ?? "other",
+      expiryDate: editing?.expiryDate ?? "",
+      startDate: editing?.startDate ?? "",
+      price: editing?.price?.toString() ?? "",
+      currency: editing?.currency ?? "Kč",
+      note: editing?.note ?? "",
+      link: editing?.link ?? "",
+      tags: editing?.tags?.join(", ") ?? "",
+      recurring: editing?.recurring ?? "none",
+    }),
+    [editing, data.categories],
+  );
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: defaults,
+  });
+
+  React.useEffect(() => {
+    if (open) form.reset(defaults);
+  }, [open, defaults, form]);
+
+  const onSubmit = (values: FormValues) => {
+    const tags =
+      values.tags
+        ?.split(",")
+        .map((t) => t.trim())
+        .filter(Boolean) ?? [];
+    const payload = {
+      name: values.name.trim(),
+      categoryId: values.categoryId,
+      expiryDate: values.expiryDate,
+      startDate: values.startDate || undefined,
+      price: values.price ? Number(values.price.replace(",", ".")) : undefined,
+      currency: values.currency || undefined,
+      note: values.note?.trim() || undefined,
+      link: values.link?.trim() || undefined,
+      tags: tags.length ? tags : undefined,
+      recurring: values.recurring,
+    };
+    if (editing) updateItem(editing.id, payload);
+    else addItem(payload);
+    onOpenChange(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-[560px]">
+        <DialogHeader>
+          <DialogTitle>{editing ? "Upravit položku" : "Nová položka"}</DialogTitle>
+          <DialogDescription>
+            Záruka, smlouva, pojistka, termín — cokoliv s datem expirace.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Název *</Label>
+            <Input id="name" placeholder="např. Notebook Lenovo" {...form.register("name")} />
+            {form.formState.errors.name && (
+              <p className="text-xs text-destructive">{form.formState.errors.name.message}</p>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label>Kategorie *</Label>
+              <Controller
+                control={form.control}
+                name="categoryId"
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Vyber kategorii" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {data.categories.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          <span className="mr-2">{c.icon}</span>
+                          {c.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Opakování</Label>
+              <Controller
+                control={form.control}
+                name="recurring"
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Bez opakování</SelectItem>
+                      <SelectItem value="yearly">Ročně</SelectItem>
+                      <SelectItem value="monthly">Měsíčně</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Controller
+              control={form.control}
+              name="startDate"
+              render={({ field }) => (
+                <DateField label="Datum pořízení / začátku" value={field.value} onChange={field.onChange} />
+              )}
+            />
+            <Controller
+              control={form.control}
+              name="expiryDate"
+              render={({ field }) => (
+                <DateField
+                  label="Datum expirace *"
+                  value={field.value}
+                  onChange={field.onChange}
+                  error={form.formState.errors.expiryDate?.message}
+                />
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-3 gap-4">
+            <div className="col-span-2 space-y-2">
+              <Label htmlFor="price">Cena</Label>
+              <Input id="price" inputMode="decimal" placeholder="0" {...form.register("price")} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="currency">Měna</Label>
+              <Input id="currency" placeholder="Kč" {...form.register("currency")} />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="link">Odkaz / příloha (URL)</Label>
+            <Input id="link" placeholder="https://…" {...form.register("link")} />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="tags">Štítky (oddělené čárkou)</Label>
+            <Input id="tags" placeholder="byt, auto, práce" {...form.register("tags")} />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="note">Poznámka</Label>
+            <Textarea id="note" rows={3} {...form.register("note")} />
+          </div>
+
+          <DialogFooter className="gap-2 sm:justify-between">
+            <div>
+              {editing && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="text-destructive hover:text-destructive"
+                  onClick={() => {
+                    deleteItem(editing.id);
+                    onOpenChange(false);
+                  }}
+                >
+                  Smazat
+                </Button>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                Zrušit
+              </Button>
+              <Button type="submit">{editing ? "Uložit" : "Přidat"}</Button>
+            </div>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function DateField({
+  label,
+  value,
+  onChange,
+  error,
+}: {
+  label: string;
+  value: string | undefined;
+  onChange: (v: string) => void;
+  error?: string;
+}) {
+  const date = value ? new Date(value + "T00:00:00") : undefined;
+  return (
+    <div className="space-y-2">
+      <Label>{label}</Label>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            type="button"
+            variant="outline"
+            className={cn(
+              "w-full justify-start text-left font-normal",
+              !date && "text-muted-foreground",
+            )}
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {date ? format(date, "d. M. yyyy") : <span>Vyber datum</span>}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="single"
+            selected={date}
+            onSelect={(d) => onChange(d ? format(d, "yyyy-MM-dd") : "")}
+            initialFocus
+            className={cn("p-3 pointer-events-auto")}
+          />
+        </PopoverContent>
+      </Popover>
+      {error && <p className="text-xs text-destructive">{error}</p>}
+    </div>
+  );
+}
