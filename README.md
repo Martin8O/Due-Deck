@@ -49,6 +49,8 @@ This project was initially scaffolded with the help of an AI code assistant and 
 
 
 
+
+
 # Sledovač záruk a termínů
 
 Malá osobní webová aplikace na sledování důležitých dat – záruk u zboží, konce pojistek, smluv nebo třeba očkování.  
