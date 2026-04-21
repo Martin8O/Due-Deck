@@ -1,9 +1,29 @@
 import { useI18n, type Lang } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const FLAGS: Record<Lang, { flag: string; label: string }> = {
-  cs: { flag: "🇨🇿", label: "CZ" },
-  en: { flag: "🇬🇧", label: "EN" },
+const FLAGS: Record<Lang, { label: string; svg: React.ReactNode }> = {
+  cs: {
+    label: "Čeština",
+    svg: (
+      <svg viewBox="0 0 60 40" className="h-5 w-7 rounded-sm shadow-sm" aria-hidden>
+        <rect width="60" height="20" y="0" fill="#ffffff" />
+        <rect width="60" height="20" y="20" fill="#d7141a" />
+        <polygon points="0,0 30,20 0,40" fill="#11457e" />
+      </svg>
+    ),
+  },
+  en: {
+    label: "English (US)",
+    svg: (
+      <svg viewBox="0 0 60 40" className="h-5 w-7 rounded-sm shadow-sm" aria-hidden>
+        <rect width="60" height="40" fill="#b22234" />
+        {[1, 3, 5, 7, 9, 11].map((i) => (
+          <rect key={i} y={i * (40 / 13)} width="60" height={40 / 13} fill="#ffffff" />
+        ))}
+        <rect width="26" height={40 / 13 * 7} fill="#3c3b6e" />
+      </svg>
+    ),
+  },
 };
 
 export function LangSwitcher({ className }: { className?: string }) {
@@ -25,16 +45,16 @@ export function LangSwitcher({ className }: { className?: string }) {
             type="button"
             onClick={() => setLang(l)}
             className={cn(
-              "flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold transition-colors",
+              "flex items-center justify-center rounded-full p-1.5 transition-all",
               active
-                ? "bg-primary text-primary-foreground shadow"
-                : "text-muted-foreground hover:text-foreground",
+                ? "bg-primary/10 ring-2 ring-primary"
+                : "opacity-60 hover:opacity-100",
             )}
             aria-pressed={active}
             aria-label={FLAGS[l].label}
+            title={FLAGS[l].label}
           >
-            <span className="text-base leading-none">{FLAGS[l].flag}</span>
-            <span>{FLAGS[l].label}</span>
+            {FLAGS[l].svg}
           </button>
         );
       })}
