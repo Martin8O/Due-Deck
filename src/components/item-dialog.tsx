@@ -2,8 +2,8 @@ import * as React from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { format, addYears, subYears } from "date-fns";
+import { CalendarIcon, ChevronsLeft, ChevronsRight } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -27,22 +27,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/lib/store";
+import { useI18n } from "@/lib/i18n";
 import type { Item } from "@/lib/types";
-
-const schema = z.object({
-  name: z.string().min(1, "Vyplň název"),
-  categoryId: z.string().min(1, "Vyber kategorii"),
-  expiryDate: z.string().min(1, "Datum expirace je povinné"),
-  startDate: z.string().optional(),
-  price: z.string().optional(),
-  currency: z.string().optional(),
-  note: z.string().optional(),
-  link: z.string().optional(),
-  tags: z.string().optional(),
-  recurring: z.enum(["none", "yearly", "monthly"]),
-});
-
-type FormValues = z.infer<typeof schema>;
 
 export function ItemDialog({
   open,
@@ -54,6 +40,26 @@ export function ItemDialog({
   editing?: Item | null;
 }) {
   const { data, addItem, updateItem, deleteItem } = useStore();
+  const { t } = useI18n();
+
+  const schema = React.useMemo(
+    () =>
+      z.object({
+        name: z.string().min(1, t("val.name")),
+        categoryId: z.string().min(1, t("val.category")),
+        expiryDate: z.string().min(1, t("val.expiry")),
+        startDate: z.string().optional(),
+        price: z.string().optional(),
+        currency: z.string().optional(),
+        note: z.string().optional(),
+        link: z.string().optional(),
+        tags: z.string().optional(),
+        recurring: z.enum(["none", "yearly", "monthly"]),
+      }),
+    [t],
+  );
+
+  type FormValues = z.infer<typeof schema>;
 
   const defaults: FormValues = React.useMemo(
     () => ({
@@ -107,15 +113,13 @@ export function ItemDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-[560px]">
         <DialogHeader>
-          <DialogTitle>{editing ? "Upravit položku" : "Nová položka"}</DialogTitle>
-          <DialogDescription>
-            Záruka, smlouva, pojistka, termín — cokoliv s datem expirace.
-          </DialogDescription>
+          <DialogTitle>{editing ? t("dlg.edit") : t("dlg.new")}</DialogTitle>
+          <DialogDescription>{t("dlg.desc")}</DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Název *</Label>
-            <Input id="name" placeholder="např. Notebook Lenovo" {...form.register("name")} />
+            <Label htmlFor="name">{t("field.name")}</Label>
+            <Input id="name" placeholder={t("field.name_ph")} {...form.register("name")} />
             {form.formState.errors.name && (
               <p className="text-xs text-destructive">{form.formState.errors.name.message}</p>
             )}
@@ -123,14 +127,14 @@ export function ItemDialog({
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label>Kategorie *</Label>
+              <Label>{t("field.category")}</Label>
               <Controller
                 control={form.control}
                 name="categoryId"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Vyber kategorii" />
+                      <SelectValue placeholder={t("field.category_ph")} />
                     </SelectTrigger>
                     <SelectContent>
                       {data.categories.map((c) => (
@@ -146,7 +150,7 @@ export function ItemDialog({
             </div>
 
             <div className="space-y-2">
-              <Label>Opakování</Label>
+              <Label>{t("field.recurring")}</Label>
               <Controller
                 control={form.control}
                 name="recurring"
@@ -156,9 +160,9 @@ export function ItemDialog({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="none">Bez opakování</SelectItem>
-                      <SelectItem value="yearly">Ročně</SelectItem>
-                      <SelectItem value="monthly">Měsíčně</SelectItem>
+                      <SelectItem value="none">{t("rec.none")}</SelectItem>
+                      <SelectItem value="yearly">{t("rec.yearly")}</SelectItem>
+                      <SelectItem value="monthly">{t("rec.monthly")}</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
@@ -171,7 +175,11 @@ export function ItemDialog({
               control={form.control}
               name="startDate"
               render={({ field }) => (
-                <DateField label="Datum pořízení / začátku" value={field.value} onChange={field.onChange} />
+                <DateField
+                  label={t("field.start")}
+                  value={field.value}
+                  onChange={field.onChange}
+                />
               )}
             />
             <Controller
@@ -179,7 +187,7 @@ export function ItemDialog({
               name="expiryDate"
               render={({ field }) => (
                 <DateField
-                  label="Datum expirace *"
+                  label={t("field.expiry")}
                   value={field.value}
                   onChange={field.onChange}
                   error={form.formState.errors.expiryDate?.message}
@@ -190,27 +198,27 @@ export function ItemDialog({
 
           <div className="grid grid-cols-3 gap-4">
             <div className="col-span-2 space-y-2">
-              <Label htmlFor="price">Cena</Label>
+              <Label htmlFor="price">{t("field.price")}</Label>
               <Input id="price" inputMode="decimal" placeholder="0" {...form.register("price")} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="currency">Měna</Label>
+              <Label htmlFor="currency">{t("field.currency")}</Label>
               <Input id="currency" placeholder="Kč" {...form.register("currency")} />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="link">Odkaz / příloha (URL)</Label>
+            <Label htmlFor="link">{t("field.link")}</Label>
             <Input id="link" placeholder="https://…" {...form.register("link")} />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="tags">Štítky (oddělené čárkou)</Label>
-            <Input id="tags" placeholder="byt, auto, práce" {...form.register("tags")} />
+            <Label htmlFor="tags">{t("field.tags")}</Label>
+            <Input id="tags" placeholder={t("field.tags_ph")} {...form.register("tags")} />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="note">Poznámka</Label>
+            <Label htmlFor="note">{t("field.note")}</Label>
             <Textarea id="note" rows={3} {...form.register("note")} />
           </div>
 
@@ -226,15 +234,15 @@ export function ItemDialog({
                     onOpenChange(false);
                   }}
                 >
-                  Smazat
+                  {t("common.delete")}
                 </Button>
               )}
             </div>
             <div className="flex gap-2">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                Zrušit
+                {t("common.cancel")}
               </Button>
-              <Button type="submit">{editing ? "Uložit" : "Přidat"}</Button>
+              <Button type="submit">{editing ? t("common.save") : t("common.add")}</Button>
             </div>
           </DialogFooter>
         </form>
@@ -254,7 +262,14 @@ function DateField({
   onChange: (v: string) => void;
   error?: string;
 }) {
+  const { t, locale } = useI18n();
   const date = value ? new Date(value + "T00:00:00") : undefined;
+  const [month, setMonth] = React.useState<Date>(date ?? new Date());
+
+  React.useEffect(() => {
+    if (date) setMonth(date);
+  }, [value]);
+
   return (
     <div className="space-y-2">
       <Label>{label}</Label>
@@ -269,14 +284,45 @@ function DateField({
             )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
-            {date ? format(date, "d. M. yyyy") : <span>Vyber datum</span>}
+            {date ? format(date, "d. M. yyyy") : <span>{t("date.pick")}</span>}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
+          <div className="flex items-center justify-between gap-1 border-b border-border px-2 py-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7"
+              onClick={() => setMonth((m) => subYears(m, 1))}
+              title="−1 rok"
+            >
+              <ChevronsLeft className="h-4 w-4" />
+            </Button>
+            <span className="text-xs font-medium text-muted-foreground">
+              {format(month, "yyyy")}
+            </span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7"
+              onClick={() => setMonth((m) => addYears(m, 1))}
+              title="+1 rok"
+            >
+              <ChevronsRight className="h-4 w-4" />
+            </Button>
+          </div>
           <Calendar
             mode="single"
             selected={date}
+            month={month}
+            onMonthChange={setMonth}
             onSelect={(d) => onChange(d ? format(d, "yyyy-MM-dd") : "")}
+            captionLayout="dropdown"
+            startMonth={new Date(1970, 0)}
+            endMonth={new Date(2100, 11)}
+            locale={locale}
             initialFocus
             className={cn("p-3 pointer-events-auto")}
           />
