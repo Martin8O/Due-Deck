@@ -3,14 +3,9 @@ import { Link, useLocation } from "@tanstack/react-router";
 import { LayoutDashboard, ListChecks, CalendarDays, Settings, Sun, Moon, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/lib/theme";
+import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
-
-const NAV = [
-  { to: "/", label: "Přehled", icon: LayoutDashboard },
-  { to: "/seznam", label: "Seznam", icon: ListChecks },
-  { to: "/kalendar", label: "Kalendář", icon: CalendarDays },
-  { to: "/nastaveni", label: "Nastavení", icon: Settings },
-] as const;
+import { LangSwitcher } from "@/components/lang-switcher";
 
 export function AppShell({
   children,
@@ -21,6 +16,14 @@ export function AppShell({
 }) {
   const location = useLocation();
   const { theme, toggle } = useTheme();
+  const { t } = useI18n();
+
+  const NAV = [
+    { to: "/", labelKey: "nav.dashboard", icon: LayoutDashboard },
+    { to: "/seznam", labelKey: "nav.list", icon: ListChecks },
+    { to: "/kalendar", labelKey: "nav.calendar", icon: CalendarDays },
+    { to: "/nastaveni", labelKey: "nav.settings", icon: Settings },
+  ] as const;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -32,12 +35,14 @@ export function AppShell({
               <CalendarDays className="h-5 w-5" />
             </div>
             <div>
-              <div className="font-display text-base font-semibold leading-tight">Termíny</div>
-              <div className="text-xs text-muted-foreground">Osobní správce</div>
+              <div className="font-display text-base font-semibold leading-tight">
+                {t("app.title")}
+              </div>
+              <div className="text-xs text-muted-foreground">{t("app.subtitle")}</div>
             </div>
           </div>
           <nav className="flex flex-col gap-1">
-            {NAV.map(({ to, label, icon: Icon }) => {
+            {NAV.map(({ to, labelKey, icon: Icon }) => {
               const active = location.pathname === to;
               return (
                 <Link
@@ -51,7 +56,7 @@ export function AppShell({
                   )}
                 >
                   <Icon className="h-4 w-4" />
-                  {label}
+                  {t(labelKey)}
                 </Link>
               );
             })}
@@ -61,7 +66,7 @@ export function AppShell({
           <div className="absolute bottom-6 left-4 right-4 space-y-2">
             {onNew && (
               <Button onClick={onNew} className="w-full gap-2" size="sm">
-                <Plus className="h-4 w-4" /> Nová položka
+                <Plus className="h-4 w-4" /> {t("common.new_item")}
               </Button>
             )}
             <Button
@@ -71,7 +76,7 @@ export function AppShell({
               onClick={toggle}
             >
               {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-              {theme === "dark" ? "Světlý režim" : "Tmavý režim"}
+              {theme === "dark" ? t("common.light_mode") : t("common.dark_mode")}
             </Button>
           </div>
         </aside>
@@ -82,12 +87,13 @@ export function AppShell({
             <div className="flex h-8 w-8 items-center justify-center rounded-lg gradient-primary text-primary-foreground">
               <CalendarDays className="h-4 w-4" />
             </div>
-            <div className="font-display text-sm font-semibold">Termíny</div>
+            <div className="font-display text-sm font-semibold">{t("app.title")}</div>
           </div>
           <div className="flex items-center gap-2">
+            <LangSwitcher />
             {onNew && (
               <Button size="sm" onClick={onNew} className="gap-1">
-                <Plus className="h-4 w-4" /> Nová
+                <Plus className="h-4 w-4" /> {t("common.new")}
               </Button>
             )}
             <Button size="icon" variant="outline" onClick={toggle}>
@@ -96,11 +102,17 @@ export function AppShell({
           </div>
         </header>
 
-        <main className="min-w-0 flex-1 px-4 py-6 lg:px-8 lg:py-8">{children}</main>
+        <main className="min-w-0 flex-1 px-4 py-6 lg:px-8 lg:py-8">
+          {/* Desktop top-right toolbar with language switcher */}
+          <div className="mb-4 hidden justify-end lg:flex">
+            <LangSwitcher />
+          </div>
+          {children}
+        </main>
 
         {/* Mobile bottom nav */}
         <nav className="fixed inset-x-0 bottom-0 z-20 flex border-t border-border bg-background/95 backdrop-blur lg:hidden">
-          {NAV.map(({ to, label, icon: Icon }) => {
+          {NAV.map(({ to, labelKey, icon: Icon }) => {
             const active = location.pathname === to;
             return (
               <Link
@@ -112,7 +124,7 @@ export function AppShell({
                 )}
               >
                 <Icon className="h-5 w-5" />
-                {label}
+                {t(labelKey)}
               </Link>
             );
           })}
