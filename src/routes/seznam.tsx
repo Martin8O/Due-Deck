@@ -5,6 +5,7 @@ import { AppShell } from "@/components/app-shell";
 import { ItemDialog } from "@/components/item-dialog";
 import { ItemCard } from "@/components/item-card";
 import { useStore, useCategoryMap } from "@/lib/store";
+import { useI18n } from "@/lib/i18n";
 import { getExpiryStatus, type Item } from "@/lib/types";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ type SortKey = "expiryAsc" | "expiryDesc" | "nameAsc" | "createdDesc";
 function ListPage() {
   const { data } = useStore();
   const cats = useCategoryMap();
+  const { t } = useI18n();
 
   const [search, setSearch] = React.useState("");
   const [category, setCategory] = React.useState<string>("all");
@@ -69,7 +71,7 @@ function ListPage() {
         case "expiryDesc":
           return b.expiryDate.localeCompare(a.expiryDate);
         case "nameAsc":
-          return a.name.localeCompare(b.name, "cs");
+          return a.name.localeCompare(b.name);
         case "createdDesc":
           return b.createdAt.localeCompare(a.createdAt);
       }
@@ -86,9 +88,9 @@ function ListPage() {
     >
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl font-bold tracking-tight">Seznam položek</h1>
+          <h1 className="font-display text-3xl font-bold tracking-tight">{t("list.title")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {filtered.length} z {data.items.length} položek
+            {filtered.length} {t("common.of")} {data.items.length} {t("common.items")}
           </p>
         </div>
         <Button
@@ -98,7 +100,7 @@ function ListPage() {
           }}
           className="gap-2"
         >
-          <Plus className="h-4 w-4" /> Nová položka
+          <Plus className="h-4 w-4" /> {t("common.new_item")}
         </Button>
       </div>
 
@@ -108,7 +110,7 @@ function ListPage() {
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             ref={searchRef}
-            placeholder="Hledat (zkratka /)…"
+            placeholder={t("common.search")}
             className="pl-9"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -116,10 +118,10 @@ function ListPage() {
         </div>
         <Select value={category} onValueChange={setCategory}>
           <SelectTrigger>
-            <SelectValue placeholder="Kategorie" />
+            <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Všechny kategorie</SelectItem>
+            <SelectItem value="all">{t("list.all_categories")}</SelectItem>
             {data.categories.map((c) => (
               <SelectItem key={c.id} value={c.id}>
                 <span className="mr-2">{c.icon}</span>
@@ -130,14 +132,14 @@ function ListPage() {
         </Select>
         <Select value={status} onValueChange={(v) => setStatus(v as StatusFilter)}>
           <SelectTrigger>
-            <SelectValue placeholder="Stav" />
+            <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Všechny stavy</SelectItem>
-            <SelectItem value="expired">Po termínu</SelectItem>
-            <SelectItem value="critical">Tento týden</SelectItem>
-            <SelectItem value="soon">Do 30 dnů</SelectItem>
-            <SelectItem value="ok">Aktivní</SelectItem>
+            <SelectItem value="all">{t("list.all_statuses")}</SelectItem>
+            <SelectItem value="expired">{t("status.expired")}</SelectItem>
+            <SelectItem value="critical">{t("status.this_week")}</SelectItem>
+            <SelectItem value="soon">{t("status.in_30_days")}</SelectItem>
+            <SelectItem value="ok">{t("status.ok")}</SelectItem>
           </SelectContent>
         </Select>
         <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
@@ -145,17 +147,17 @@ function ListPage() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="expiryAsc">Expirace ↑ (nejbližší první)</SelectItem>
-            <SelectItem value="expiryDesc">Expirace ↓</SelectItem>
-            <SelectItem value="nameAsc">Název A–Z</SelectItem>
-            <SelectItem value="createdDesc">Naposledy přidané</SelectItem>
+            <SelectItem value="expiryAsc">{t("list.sort.expiry_asc")}</SelectItem>
+            <SelectItem value="expiryDesc">{t("list.sort.expiry_desc")}</SelectItem>
+            <SelectItem value="nameAsc">{t("list.sort.name_asc")}</SelectItem>
+            <SelectItem value="createdDesc">{t("list.sort.created_desc")}</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       {filtered.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border bg-card p-10 text-center">
-          <p className="text-sm text-muted-foreground">Žádné položky neodpovídají filtrům.</p>
+          <p className="text-sm text-muted-foreground">{t("list.empty")}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">

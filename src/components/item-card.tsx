@@ -1,18 +1,32 @@
 import { format } from "date-fns";
-import { cs } from "date-fns/locale";
 import { ExternalLink, Pencil } from "lucide-react";
 import type { Item, Category } from "@/lib/types";
 import { daysUntil, getExpiryStatus } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useI18n } from "@/lib/i18n";
+import { resolveCategoryColor } from "@/lib/category-color";
 
-const statusStyles: Record<ReturnType<typeof getExpiryStatus>, { label: string; cls: string }> = {
-  expired: { label: "Po termínu", cls: "bg-danger/15 text-danger border-danger/30" },
-  critical: { label: "Tento týden", cls: "bg-destructive/10 text-destructive border-destructive/30" },
-  soon: { label: "Brzy", cls: "bg-warning/15 text-warning-foreground border-warning/40" },
-  ok: { label: "OK", cls: "bg-success/15 text-success-foreground border-success/30" },
-};
+const statusStyles: Record<ReturnType<typeof getExpiryStatus>, { labelKey: string; cls: string }> =
+  {
+    expired: {
+      labelKey: "status.expired",
+      cls: "bg-danger/15 text-danger border-danger/40 dark:bg-danger/20 dark:text-danger-foreground dark:border-danger/50",
+    },
+    critical: {
+      labelKey: "status.this_week",
+      cls: "bg-destructive/15 text-destructive border-destructive/40 dark:bg-destructive/25 dark:text-destructive-foreground dark:border-destructive/50",
+    },
+    soon: {
+      labelKey: "status.soon",
+      cls: "bg-warning-soft text-warning-soft-foreground border-warning/50 font-semibold",
+    },
+    ok: {
+      labelKey: "status.ok",
+      cls: "bg-success-soft text-success-soft-foreground border-success/50 font-semibold",
+    },
+  };
 
 export function ItemCard({
   item,
@@ -26,6 +40,14 @@ export function ItemCard({
   const status = getExpiryStatus(item.expiryDate);
   const days = daysUntil(item.expiryDate);
   const s = statusStyles[status];
+  const { t, locale } = useI18n();
+
+  const relText =
+    days < 0
+      ? t("rel.days_ago", { n: Math.abs(days) })
+      : days === 0
+        ? t("rel.today")
+        : t("rel.in_days", { n: days });
 
   return (
     <div
@@ -35,7 +57,7 @@ export function ItemCard({
     >
       <div
         className="absolute inset-y-0 left-0 w-1"
-        style={{ background: `var(--${category?.color ?? "cat-other"})` }}
+        style={{ background: resolveCategoryColor(category?.color) }}
       />
       <div className="flex items-start justify-between gap-3 pl-2">
         <div className="min-w-0 flex-1">
@@ -47,16 +69,12 @@ export function ItemCard({
 
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <Badge variant="outline" className={cn("border", s.cls)}>
-              {s.label}
+              {t(s.labelKey)}
             </Badge>
             <span className="text-xs text-muted-foreground">
-              {format(new Date(item.expiryDate + "T00:00:00"), "d. M. yyyy", { locale: cs })}
+              {format(new Date(item.expiryDate + "T00:00:00"), "d. M. yyyy", { locale })}
               {" · "}
-              {days < 0
-                ? `před ${Math.abs(days)} dny`
-                : days === 0
-                  ? "dnes"
-                  : `za ${days} dní`}
+              {relText}
             </span>
           </div>
 
@@ -64,12 +82,12 @@ export function ItemCard({
             <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
               {item.price !== undefined && (
                 <span>
-                  {item.price.toLocaleString("cs-CZ")} {item.currency ?? "Kč"}
+                  {item.price.toLocaleString(locale.code)} {item.currency ?? "Kč"}
                 </span>
               )}
-              {item.tags?.map((t) => (
-                <span key={t} className="rounded bg-muted px-1.5 py-0.5">
-                  #{t}
+              {item.tags?.map((tag) => (
+                <span key={tag} className="rounded bg-muted px-1.5 py-0.5">
+                  #{tag}
                 </span>
               ))}
             </div>
