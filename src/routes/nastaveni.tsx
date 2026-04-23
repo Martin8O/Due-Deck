@@ -98,10 +98,9 @@ function SettingsPage() {
                 key={l}
                 variant={lang === l ? "default" : "outline"}
                 onClick={() => setLang(l)}
-                className="flex-1 gap-2"
+                className="flex-1"
               >
-                <span className="text-base">{l === "cs" ? "🇨🇿" : "🇬🇧"}</span>
-                {l === "cs" ? "Čeština" : "English (GB)"}
+                {l === "cs" ? "Čeština" : "English"}
               </Button>
             ))}
           </div>
