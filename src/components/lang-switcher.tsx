@@ -16,28 +16,13 @@ const FLAGS: Record<Lang, { label: string; svg: React.ReactNode }> = {
     label: "English (GB)",
     svg: (
       <svg viewBox="0 0 60 40" className="h-5 w-7 rounded-sm shadow-sm" aria-hidden>
-        <clipPath id="gb-clip">
-          <rect width="60" height="40" />
-        </clipPath>
-        <g clipPath="url(#gb-clip)">
-          <rect width="60" height="40" fill="#012169" />
-          {/* White diagonals */}
-          <path d="M0,0 L60,40 M60,0 L0,40" stroke="#ffffff" strokeWidth="8" />
-          {/* Red diagonals (St. Patrick) */}
-          <path
-            d="M0,0 L60,40"
-            stroke="#C8102E"
-            strokeWidth="3"
-            clipPath="polygon(0 0, 50% 0, 100% 50%, 100% 100%, 50% 100%, 0 50%)"
-          />
-          <path d="M0,0 L60,40 M60,0 L0,40" stroke="#C8102E" strokeWidth="2.5" />
-          {/* White cross */}
-          <rect x="25" width="10" height="40" fill="#ffffff" />
-          <rect y="15" width="60" height="10" fill="#ffffff" />
-          {/* Red cross (St. George) */}
-          <rect x="27" width="6" height="40" fill="#C8102E" />
-          <rect y="17" width="60" height="6" fill="#C8102E" />
-        </g>
+        <rect width="60" height="40" fill="#012169" />
+        <path d="M0,0 L60,40 M60,0 L0,40" stroke="#ffffff" strokeWidth="8" />
+        <path d="M0,0 L60,40 M60,0 L0,40" stroke="#C8102E" strokeWidth="3" />
+        <rect x="25" width="10" height="40" fill="#ffffff" />
+        <rect y="15" width="60" height="10" fill="#ffffff" />
+        <rect x="27" width="6" height="40" fill="#C8102E" />
+        <rect y="17" width="60" height="6" fill="#C8102E" />
       </svg>
     ),
   },
