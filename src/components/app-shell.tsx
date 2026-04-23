@@ -1,9 +1,23 @@
 import * as React from "react";
 import { Link, useLocation } from "@tanstack/react-router";
-import { LayoutDashboard, ListChecks, CalendarDays, Settings, Sun, Moon, Plus } from "lucide-react";
+import {
+  LayoutDashboard,
+  ListChecks,
+  CalendarDays,
+  Settings,
+  Sun,
+  Moon,
+  Plus,
+  Download,
+  Upload,
+  Heart,
+} from "lucide-react";
+import { format } from "date-fns";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/lib/theme";
 import { useI18n } from "@/lib/i18n";
+import { useStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { LangSwitcher } from "@/components/lang-switcher";
 
