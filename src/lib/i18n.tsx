@@ -123,6 +123,12 @@ const cs: Dict = {
   // misc
   "misc.dash": "—",
   "misc.more_others": "+{n} dalších",
+  // sidebar backup quick actions
+  "backup.title": "Záloha dat",
+  "backup.save": "Uložit zálohu",
+  "backup.load": "Nahrát zálohu",
+  "backup.save_tip": "Stáhnout JSON zálohu na disk",
+  "backup.load_tip": "Načíst dříve uloženou JSON zálohu",
 };
 
 const en: Dict = {
@@ -231,6 +237,11 @@ const en: Dict = {
   "rel.in_days": "in {n} days",
   "misc.dash": "—",
   "misc.more_others": "+{n} more",
+  "backup.title": "Backup",
+  "backup.save": "Save backup",
+  "backup.load": "Load backup",
+  "backup.save_tip": "Download JSON backup to disk",
+  "backup.load_tip": "Load a previously saved JSON backup",
 };
 
 const DICTS: Record<Lang, Dict> = { cs, en };
