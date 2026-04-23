@@ -101,7 +101,7 @@ function SettingsPage() {
                 className="flex-1 gap-2"
               >
                 <span className="text-base">{l === "cs" ? "🇨🇿" : "🇬🇧"}</span>
-                {l === "cs" ? "Čeština" : "English"}
+                {l === "cs" ? "Čeština" : "English (GB)"}
               </Button>
             ))}
           </div>
