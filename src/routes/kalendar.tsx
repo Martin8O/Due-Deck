@@ -42,13 +42,45 @@ function CalendarPage() {
 
   const itemsByDate = React.useMemo(() => {
     const m = new Map<string, Item[]>();
-    for (const it of data.items) {
-      const k = it.expiryDate;
+    const push = (k: string, it: Item) => {
       if (!m.has(k)) m.set(k, []);
       m.get(k)!.push(it);
+    };
+
+    // Range to generate recurring occurrences for (cover current view + buffer)
+    const rangeStart = new Date(cursor.getFullYear() - 1, 0, 1);
+    const rangeEnd = new Date(cursor.getFullYear() + 2, 11, 31);
+
+    for (const it of data.items) {
+      // Always show the expiry date itself
+      push(it.expiryDate, it);
+
+      // Generate recurring payment occurrences
+      if (it.paymentDate && it.recurring && it.recurring !== "none") {
+        const base = new Date(it.paymentDate + "T00:00:00");
+        if (isNaN(base.getTime())) continue;
+        const stepMonths =
+          it.recurring === "monthly" ? 1 : it.recurring === "quarterly" ? 3 : 12;
+
+        // Start from base, walk backward until before rangeStart
+        let cur = new Date(base);
+        while (cur > rangeStart) {
+          cur = new Date(cur.getFullYear(), cur.getMonth() - stepMonths, base.getDate());
+        }
+        // Walk forward, pushing each occurrence within range and not after expiry
+        const expiry = new Date(it.expiryDate + "T00:00:00");
+        while (cur <= rangeEnd) {
+          if (cur >= rangeStart && cur <= expiry) {
+            const k = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, "0")}-${String(cur.getDate()).padStart(2, "0")}`;
+            // Avoid duplicating the expiry-day entry
+            if (k !== it.expiryDate) push(k, it);
+          }
+          cur = new Date(cur.getFullYear(), cur.getMonth() + stepMonths, base.getDate());
+        }
+      }
     }
     return m;
-  }, [data.items]);
+  }, [data.items, cursor]);
 
   const today = new Date();
   const dayItems = dayOpen ? (itemsByDate.get(format(dayOpen, "yyyy-MM-dd")) ?? []) : [];

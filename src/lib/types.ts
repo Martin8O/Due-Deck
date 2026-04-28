@@ -19,7 +19,9 @@ export interface Item {
   note?: string;
   link?: string;
   tags?: string[];
-  recurring?: "none" | "yearly" | "monthly";
+  recurring?: "none" | "yearly" | "monthly" | "quarterly";
+  /** Day of payment for recurring items (ISO YYYY-MM-DD). Repeats by `recurring` frequency. */
+  paymentDate?: string;
   createdAt: string;
   updatedAt: string;
 }

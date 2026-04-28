@@ -49,12 +49,13 @@ export function ItemDialog({
         categoryId: z.string().min(1, t("val.category")),
         expiryDate: z.string().min(1, t("val.expiry")),
         startDate: z.string().optional(),
+        paymentDate: z.string().optional(),
         price: z.string().optional(),
         currency: z.string().optional(),
         note: z.string().optional(),
         link: z.string().optional(),
         tags: z.string().optional(),
-        recurring: z.enum(["none", "yearly", "monthly"]),
+        recurring: z.enum(["none", "yearly", "quarterly", "monthly"]),
       }),
     [t],
   );
@@ -67,6 +68,7 @@ export function ItemDialog({
       categoryId: editing?.categoryId ?? data.categories[0]?.id ?? "other",
       expiryDate: editing?.expiryDate ?? "",
       startDate: editing?.startDate ?? "",
+      paymentDate: editing?.paymentDate ?? "",
       price: editing?.price?.toString() ?? "",
       currency: editing?.currency ?? "Kč",
       note: editing?.note ?? "",
@@ -97,6 +99,7 @@ export function ItemDialog({
       categoryId: values.categoryId,
       expiryDate: values.expiryDate,
       startDate: values.startDate || undefined,
+      paymentDate: values.recurring !== "none" ? values.paymentDate || undefined : undefined,
       price: values.price ? Number(values.price.replace(",", ".")) : undefined,
       currency: values.currency || undefined,
       note: values.note?.trim() || undefined,
@@ -161,8 +164,9 @@ export function ItemDialog({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="none">{t("rec.none")}</SelectItem>
-                      <SelectItem value="yearly">{t("rec.yearly")}</SelectItem>
                       <SelectItem value="monthly">{t("rec.monthly")}</SelectItem>
+                      <SelectItem value="quarterly">{t("rec.quarterly")}</SelectItem>
+                      <SelectItem value="yearly">{t("rec.yearly")}</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
@@ -195,6 +199,23 @@ export function ItemDialog({
               )}
             />
           </div>
+
+          {form.watch("recurring") !== "none" && (
+            <div className="rounded-lg border border-dashed border-border bg-muted/30 p-3">
+              <Controller
+                control={form.control}
+                name="paymentDate"
+                render={({ field }) => (
+                  <DateField
+                    label={t("field.payment")}
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                )}
+              />
+              <p className="mt-2 text-xs text-muted-foreground">{t("field.payment_hint")}</p>
+            </div>
+          )}
 
           <div className="grid grid-cols-3 gap-4">
             <div className="col-span-2 space-y-2">
