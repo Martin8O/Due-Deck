@@ -277,9 +277,9 @@ function StatCard({
 }) {
   const tones: Record<string, string> = {
     danger:
-      "from-danger/20 to-danger/5 text-danger dark:from-danger/25 dark:to-danger/5 dark:text-danger-foreground",
+      "from-danger/20 to-danger/5 text-danger dark:from-danger/30 dark:to-danger/10 dark:text-danger",
     critical:
-      "from-destructive/20 to-destructive/5 text-destructive dark:from-destructive/25 dark:to-destructive/5 dark:text-destructive-foreground",
+      "from-destructive/20 to-destructive/5 text-destructive dark:from-destructive/30 dark:to-destructive/10 dark:text-destructive",
     warning:
       "from-warning/25 to-warning/5 text-warning-soft-foreground dark:from-warning/30 dark:to-warning/10",
     primary: "from-primary/20 to-primary/5 text-primary",
