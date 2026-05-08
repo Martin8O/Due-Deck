@@ -279,6 +279,33 @@ export function AppShell({
         </nav>
         <div className="h-16 lg:hidden" />
       </div>
+
+      <Dialog open={aboutOpen} onOpenChange={setAboutOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{t("about.title")}</DialogTitle>
+            <DialogDescription>{t("about.intro")}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 text-sm">
+            <section>
+              <h3 className="font-display font-semibold">{t("about.local_h")}</h3>
+              <p className="mt-1 text-muted-foreground">{t("about.local_b")}</p>
+            </section>
+            <section>
+              <h3 className="font-display font-semibold">{t("about.privacy_h")}</h3>
+              <p className="mt-1 text-muted-foreground">{t("about.privacy_b")}</p>
+            </section>
+            <section>
+              <h3 className="font-display font-semibold">{t("about.security_h")}</h3>
+              <p className="mt-1 text-muted-foreground">{t("about.security_b")}</p>
+            </section>
+            <section>
+              <h3 className="font-display font-semibold">{t("about.disclaimer_h")}</h3>
+              <p className="mt-1 text-muted-foreground">{t("about.disclaimer_b")}</p>
+            </section>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
