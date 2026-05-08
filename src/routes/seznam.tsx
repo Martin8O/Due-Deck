@@ -6,7 +6,7 @@ import { ItemDialog } from "@/components/item-dialog";
 import { ItemCard } from "@/components/item-card";
 import { useStore, useCategoryMap } from "@/lib/store";
 import { useI18n } from "@/lib/i18n";
-import { getExpiryStatus, type Item } from "@/lib/types";
+import { getExpiryStatus, daysUntil, type Item } from "@/lib/types";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -52,28 +52,78 @@ function ListPage() {
   }, []);
 
   const filtered = React.useMemo(() => {
-    let arr = [...data.items];
+    type Entry = { item: Item; isOccurrence: boolean; key: string };
+    const entries: Entry[] = data.items.map((it) => ({
+      item: it,
+      isOccurrence: false,
+      key: it.id,
+    }));
+
+    // Build virtual recurring payment occurrences (future, up to expiry, max 24 months)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const horizon = new Date(today);
+    horizon.setMonth(horizon.getMonth() + 24);
+
+    for (const it of data.items) {
+      if (!it.paymentDate || !it.recurring || it.recurring === "none") continue;
+      const base = new Date(it.paymentDate + "T00:00:00");
+      if (isNaN(base.getTime())) continue;
+      const stepMonths =
+        it.recurring === "monthly" ? 1 : it.recurring === "quarterly" ? 3 : 12;
+      const expiry = new Date(it.expiryDate + "T00:00:00");
+      // Walk forward from base date
+      let cur = new Date(base);
+      // Skip past occurrences
+      while (cur < today) {
+        cur = new Date(cur.getFullYear(), cur.getMonth() + stepMonths, base.getDate());
+      }
+      while (cur <= horizon && cur <= expiry) {
+        const iso = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, "0")}-${String(cur.getDate()).padStart(2, "0")}`;
+        if (iso !== it.expiryDate) {
+          entries.push({
+            item: { ...it, expiryDate: iso },
+            isOccurrence: true,
+            key: `${it.id}-${iso}`,
+          });
+        }
+        cur = new Date(cur.getFullYear(), cur.getMonth() + stepMonths, base.getDate());
+      }
+    }
+
+    let arr = entries;
     if (search.trim()) {
       const q = search.toLowerCase();
       arr = arr.filter(
-        (i) =>
-          i.name.toLowerCase().includes(q) ||
-          i.note?.toLowerCase().includes(q) ||
-          i.tags?.some((t) => t.toLowerCase().includes(q)),
+        (e) =>
+          e.item.name.toLowerCase().includes(q) ||
+          e.item.note?.toLowerCase().includes(q) ||
+          e.item.tags?.some((t) => t.toLowerCase().includes(q)),
       );
     }
-    if (category !== "all") arr = arr.filter((i) => i.categoryId === category);
-    if (status !== "all") arr = arr.filter((i) => getExpiryStatus(i.expiryDate) === status);
-    arr.sort((a, b) => {
+    if (category !== "all") arr = arr.filter((e) => e.item.categoryId === category);
+    if (status !== "all") {
+      arr = arr.filter((e) => {
+        // Don't include recurring occurrences in the "expired" bucket
+        if (e.isOccurrence && status === "expired") return false;
+        const d = daysUntil(e.item.expiryDate);
+        if (status === "expired") return d < 0;
+        if (status === "critical") return d >= 0 && d <= 7;
+        if (status === "soon") return d >= 0 && d <= 30; // includes "this week"
+        if (status === "ok") return d > 30;
+        return true;
+      });
+    }
+    arr = [...arr].sort((a, b) => {
       switch (sort) {
         case "expiryAsc":
-          return a.expiryDate.localeCompare(b.expiryDate);
+          return a.item.expiryDate.localeCompare(b.item.expiryDate);
         case "expiryDesc":
-          return b.expiryDate.localeCompare(a.expiryDate);
+          return b.item.expiryDate.localeCompare(a.item.expiryDate);
         case "nameAsc":
-          return a.name.localeCompare(b.name);
+          return a.item.name.localeCompare(b.item.name);
         case "createdDesc":
-          return b.createdAt.localeCompare(a.createdAt);
+          return b.item.createdAt.localeCompare(a.item.createdAt);
       }
     });
     return arr;
@@ -161,13 +211,14 @@ function ListPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {filtered.map((it) => (
+          {filtered.map((e) => (
             <ItemCard
-              key={it.id}
-              item={it}
-              category={cats.get(it.categoryId)}
-              onEdit={(item) => {
-                setEditing(item);
+              key={e.key}
+              item={e.item}
+              category={cats.get(e.item.categoryId)}
+              onEdit={() => {
+                const original = data.items.find((x) => x.id === e.item.id) ?? e.item;
+                setEditing(original);
                 setOpen(true);
               }}
             />
