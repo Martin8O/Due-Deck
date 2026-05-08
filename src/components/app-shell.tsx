@@ -11,7 +11,15 @@ import {
   Download,
   Upload,
   Heart,
+  Info,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -33,6 +41,7 @@ export function AppShell({
   const { t } = useI18n();
   const { exportJson, importJson } = useStore();
   const fileRef = React.useRef<HTMLInputElement>(null);
+  const [aboutOpen, setAboutOpen] = React.useState(false);
 
   const handleExport = React.useCallback(() => {
     const json = exportJson();
