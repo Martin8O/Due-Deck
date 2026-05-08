@@ -11,7 +11,15 @@ import {
   Download,
   Upload,
   Heart,
+  Info,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -33,6 +41,7 @@ export function AppShell({
   const { t } = useI18n();
   const { exportJson, importJson } = useStore();
   const fileRef = React.useRef<HTMLInputElement>(null);
+  const [aboutOpen, setAboutOpen] = React.useState(false);
 
   const handleExport = React.useCallback(() => {
     const json = exportJson();
@@ -160,6 +169,15 @@ export function AppShell({
               {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               {theme === "dark" ? t("common.light_mode") : t("common.dark_mode")}
             </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full justify-start gap-2"
+              onClick={() => setAboutOpen(true)}
+            >
+              <Info className="h-4 w-4" />
+              {t("about.button")}
+            </Button>
             <a
               href="https://github.com/Martin8O"
               target="_blank"
@@ -261,6 +279,33 @@ export function AppShell({
         </nav>
         <div className="h-16 lg:hidden" />
       </div>
+
+      <Dialog open={aboutOpen} onOpenChange={setAboutOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{t("about.title")}</DialogTitle>
+            <DialogDescription>{t("about.intro")}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 text-sm">
+            <section>
+              <h3 className="font-display font-semibold">{t("about.local_h")}</h3>
+              <p className="mt-1 text-muted-foreground">{t("about.local_b")}</p>
+            </section>
+            <section>
+              <h3 className="font-display font-semibold">{t("about.privacy_h")}</h3>
+              <p className="mt-1 text-muted-foreground">{t("about.privacy_b")}</p>
+            </section>
+            <section>
+              <h3 className="font-display font-semibold">{t("about.security_h")}</h3>
+              <p className="mt-1 text-muted-foreground">{t("about.security_b")}</p>
+            </section>
+            <section>
+              <h3 className="font-display font-semibold">{t("about.disclaimer_h")}</h3>
+              <p className="mt-1 text-muted-foreground">{t("about.disclaimer_b")}</p>
+            </section>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

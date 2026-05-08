@@ -133,6 +133,24 @@ const cs: Dict = {
   "backup.load": "Nahrát zálohu",
   "backup.save_tip": "Stáhnout JSON zálohu na disk",
   "backup.load_tip": "Načíst dříve uloženou JSON zálohu",
+  // about
+  "about.button": "O aplikaci",
+  "about.title": "O této aplikaci",
+  "about.intro":
+    "Termíny je jednoduchý osobní správce expirací — záruky, smlouvy, pojistky, očkování a další termíny — vše na jednom místě.",
+  "about.local_h": "Kde se data počítají",
+  "about.local_b":
+    "Veškerá data se ukládají pouze lokálně ve tvém prohlížeči (localStorage). Nic se neposílá na žádný server, neexistuje žádný backend ani databáze.",
+  "about.privacy_h": "Soukromí a anonymita",
+  "about.privacy_b":
+    "Aplikace nevyžaduje registraci ani přihlášení, nesbírá žádné osobní údaje, neukládá cookies pro sledování a neposílá analytiku. Jsi zcela anonymní.",
+  "about.security_h": "Bezpečnost",
+  "about.security_b":
+    "Protože jsou data jen ve tvém prohlížeči, nejsou vystavena na internetu. Pravidelně si ale stáhni zálohu (Uložit zálohu) — pokud si vyčistíš data prohlížeče, budou nenávratně ztracena.",
+  "about.disclaimer_h": "Upozornění",
+  "about.disclaimer_b":
+    "Aplikace je poskytována „tak jak je“, bez záruk. Slouží jako pomocný nástroj — neověřuje termíny u třetích stran (operátoři, pojišťovny, lékaři). Odpovědnost za sledování důležitých termínů zůstává na tobě.",
+  "about.close": "Zavřít",
 };
 
 const en: Dict = {
@@ -250,6 +268,23 @@ const en: Dict = {
   "backup.load": "Load backup",
   "backup.save_tip": "Download JSON backup to disk",
   "backup.load_tip": "Load a previously saved JSON backup",
+  "about.button": "About",
+  "about.title": "About this app",
+  "about.intro":
+    "Deadlines is a simple personal expiry manager — warranties, contracts, insurance, vaccinations and other dates — all in one place.",
+  "about.local_h": "Where data is processed",
+  "about.local_b":
+    "All data is stored only locally in your browser (localStorage). Nothing is sent to any server — there is no backend or database.",
+  "about.privacy_h": "Privacy & anonymity",
+  "about.privacy_b":
+    "No registration or login is required. The app collects no personal data, sets no tracking cookies and sends no analytics. You are completely anonymous.",
+  "about.security_h": "Security",
+  "about.security_b":
+    "Because your data lives only in your browser, it is not exposed online. Still, download a backup regularly (Save backup) — clearing your browser data will permanently erase it.",
+  "about.disclaimer_h": "Disclaimer",
+  "about.disclaimer_b":
+    "The app is provided “as is”, without warranties. It is a helper tool — it does not verify deadlines with third parties (carriers, insurers, doctors). You remain responsible for tracking important dates.",
+  "about.close": "Close",
 };
 
 const DICTS: Record<Lang, Dict> = { cs, en };
