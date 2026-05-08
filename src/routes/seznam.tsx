@@ -140,7 +140,8 @@ function ListPage() {
         <div>
           <h1 className="font-display text-3xl font-bold tracking-tight">{t("list.title")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {filtered.length} {t("common.of")} {data.items.length} {t("common.items")}
+            {filtered.filter((e) => !e.isOccurrence).length} {t("common.of")}{" "}
+            {data.items.length} {t("common.items")}
           </p>
         </div>
         <Button
