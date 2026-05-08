@@ -6,7 +6,7 @@ import { ItemDialog } from "@/components/item-dialog";
 import { ItemCard } from "@/components/item-card";
 import { useStore, useCategoryMap } from "@/lib/store";
 import { useI18n } from "@/lib/i18n";
-import { getExpiryStatus, daysUntil, type Item } from "@/lib/types";
+import { daysUntil, type Item } from "@/lib/types";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
