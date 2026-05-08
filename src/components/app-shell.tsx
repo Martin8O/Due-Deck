@@ -169,6 +169,15 @@ export function AppShell({
               {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               {theme === "dark" ? t("common.light_mode") : t("common.dark_mode")}
             </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full justify-start gap-2"
+              onClick={() => setAboutOpen(true)}
+            >
+              <Info className="h-4 w-4" />
+              {t("about.button")}
+            </Button>
             <a
               href="https://github.com/Martin8O"
               target="_blank"
